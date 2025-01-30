@@ -6,6 +6,13 @@
       "name": "Development server",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "command": "./node_modules/.bin/astro preview --host",
+      "name": "Preview Build",
+      "request": "launch",
+      "type": "node-terminal",
+      "preLaunchTask": "build"
     }
   ]
 }
