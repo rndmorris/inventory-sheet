@@ -1,19 +1,16 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { type PromiseExtended } from 'dexie';
 import './Records.css';
-import { cloneItemRecord, type ItemRecordHydrated } from "../data/tables";
-import { db } from "../data/db";
+import { type ItemRecordHydrated } from "../data/tables";
 import { useContext } from "react";
 import { EnqueueModalContext } from "./IndexPage";
 import { EditItemRecord } from "./modals";
+import { dbItems, dbRecords } from "../data/db";
 
 const query = async () => {
-    const records = await db.records.toArray() as ItemRecordHydrated[];
+    const records = await dbRecords.toArray() as ItemRecordHydrated[];
     await Promise.all(records.map(async record => {
         if (record.itemId != null) {
-            [record.item] = await Promise.all([
-                db.items.get (record.itemId)
-            ]);
+            record.item = await dbItems.get(record.itemId);
         }
     }));
 
@@ -35,7 +32,7 @@ export function Record({record} : { record: ItemRecordHydrated }) {
 
     function editItem() {
         if (enqueueModal != null) {
-            enqueueModal(<EditItemRecord initialData={cloneItemRecord(record)} />)
+            enqueueModal(<EditItemRecord initialData={record} />)
         }
     }
 

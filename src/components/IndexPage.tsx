@@ -1,7 +1,6 @@
 import { RecordList } from './Records';
 import './Index.css';
 import React, { createContext, useEffect, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
 import { EditItem, EditItemRecord } from './modals';
 
 export const EnqueueModalContext = createContext<((modal: React.ReactNode) => void) | null>(null);
