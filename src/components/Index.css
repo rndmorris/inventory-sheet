@@ -1,0 +1,23 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+    
+    width: 100%;
+    height: 100%;
+    padding: 5px;
+}
+
+#container > header {
+    flex-shrink: 3;
+}
+
+#container > main {
+    flex-grow: 5;
+}
+
+#container > footer {
+    flex-shrink: 3;
+    justify-self: flex-end;
+}

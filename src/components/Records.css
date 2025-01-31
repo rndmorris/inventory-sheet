@@ -1,0 +1,41 @@
+.inventory {
+    box-sizing: border-box;
+    display: table;
+    width: 100%;
+}
+.table-header {
+    display: table-row;
+}
+.table-header > * {
+    display: table-cell;
+}
+
+
+details {
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: .25em .5em;
+    display: table-row;
+}
+details:not(:first-child) {
+    margin-top: 5px;
+}
+
+summary {
+    display: flex;
+    border-radius: 15px;
+    flex-direction: row;
+    justify-content: space-between;
+}
+details:has(summary:hover) {
+    border-color: blue;
+}
+summary:hover {
+    cursor: pointer;
+}
+details .btn-edit {
+    visibility: hidden;
+}
+details[open] .btn-edit {
+    visibility: visible;
+}
