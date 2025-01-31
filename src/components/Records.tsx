@@ -1,29 +1,54 @@
-import type { ItemDefinition, ItemRecord } from "../data/db";
-import { sampleDefinitions, sampleRecords } from "../data/db";
+import { useLiveQuery } from "dexie-react-hooks";
+import { type PromiseExtended } from 'dexie';
 import './Records.css';
+import { cloneItemRecord, type ItemRecordHydrated } from "../data/tables";
+import { db } from "../data/db";
+import { useContext } from "react";
+import { EnqueueModalContext } from "./IndexPage";
+import { EditItemRecord } from "./modals";
+
+const query = async () => {
+    const records = await db.records.toArray() as ItemRecordHydrated[];
+    await Promise.all(records.map(async record => {
+        if (record.itemId != null) {
+            [record.item] = await Promise.all([
+                db.items.get (record.itemId)
+            ]);
+        }
+    }));
+
+    return records;
+};
 
 export function RecordList() {
-
-    const rows = sampleRecords.keys().map(key => {
-        const rec = sampleRecords.get(key)!;
-        const def = rec.definitionId != null ? sampleDefinitions.get(rec.definitionId) : undefined;
-        return <Record key={rec.id} definition={def} record={rec} />
-    });
-
-    return rows.toArray();
+    const data = useLiveQuery(query);
+    return data?.map(record => <Record key={record.id} record={record} />);
 }
 
-export function Record({definition, record} : { definition?: ItemDefinition | null, record: ItemRecord }) {
+export function Record({record} : { record: ItemRecordHydrated }) {
+
+    const enqueueModal = useContext(EnqueueModalContext);
+
+    if (enqueueModal == null) {
+        return null;
+    }
+
+    function editItem() {
+        if (enqueueModal != null) {
+            enqueueModal(<EditItemRecord initialData={cloneItemRecord(record)} />)
+        }
+    }
+
     return (
         <details>
             <summary>
                 <div>
-                    <b>{record.name ?? definition?.name}</b> ({record.quantity})
+                    <b>{record.name ?? record?.item?.name}</b> ({record.quantity})
                 </div>
                 
-                <button className="btn-edit">Edit</button>
+                {enqueueModal != null ? <button className="btn-edit" onClick={editItem}>Edit</button> : null}
             </summary>
-            {definition?.desc != null ? (<p>{definition.desc}</p>) : null}
+            {record?.item?.desc != null ? (<p>{record?.item.desc}</p>) : null}
             {record.desc != null ? (<p>{record.desc}</p>) : null}
         </details>
     );
