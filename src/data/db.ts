@@ -20,7 +20,7 @@ export interface Repository<T, TKey extends keyof T, TKeyProp = T[TKey]> {
 export const dbItems: Repository<Item, `id`> = {
     toArray: () => db.items.toArray(),
     get: (key) => db.items.get(key),
-    put: ({id, name, desc, weight, monetaryValue}: InsertType<Item, "id">) => db.items.put({
+    put: ({ id, name, desc, weight, monetaryValue }: InsertType<Item, "id">) => db.items.put({
         id,
         name,
         desc,
@@ -32,7 +32,7 @@ export const dbItems: Repository<Item, `id`> = {
 export const dbRecords: Repository<ItemRecord, `id`> = {
     toArray: () => db.records.toArray(),
     get: (key) => db.records.get(key),
-    put: ({id, itemId, quantity, fields, name, desc, weight, monetaryValue}: InsertType<ItemRecord, "id">) => db.records.put({
+    put: ({ id, itemId, quantity, fields, name, desc, weight, monetaryValue }: InsertType<ItemRecord, "id">) => db.records.put({
         id,
         itemId,
         quantity,
