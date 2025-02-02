@@ -2,7 +2,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import "./Records.css";
 import { type ItemRecordHydrated } from "../data/tables";
 import { useContext } from "react";
-import { EnqueueModalContext } from "./IndexPage";
+import { OpenModalContext } from "./IndexPage";
 import { EditItemRecord } from "./modals";
 import { dbItems, dbRecords } from "../data/db";
 
@@ -19,21 +19,22 @@ const query = async () => {
   return records;
 };
 
+export function ItemList() {
+  const data = useLiveQuery(() => dbItems.toArray());
+  
+}
+
 export function RecordList() {
   const data = useLiveQuery(query);
   return data?.map((record) => <Record key={record.id} record={record} />);
 }
 
 export function Record({ record }: { record: ItemRecordHydrated }) {
-  const enqueueModal = useContext(EnqueueModalContext);
-
-  if (enqueueModal == null) {
-    return null;
-  }
+  const openModal = useContext(OpenModalContext);
 
   function editItem() {
-    if (enqueueModal != null) {
-      enqueueModal(<EditItemRecord initialData={record} />);
+    if (openModal != null) {
+      openModal(<EditItemRecord initialData={record} />);
     }
   }
 
@@ -44,7 +45,7 @@ export function Record({ record }: { record: ItemRecordHydrated }) {
           <b>{record.name ?? record?.item?.name}</b> ({record.quantity})
         </div>
 
-        {enqueueModal != null ? (
+        {openModal != null ? (
           <button className="btn-edit" onClick={editItem}>
             Edit
           </button>

@@ -1,18 +1,20 @@
 import { RecordList } from "./Records";
-import "./Index.css";
 import React, { createContext, useEffect, useRef, useState } from "react";
 import { EditItem, EditItemRecord } from "./modals";
+import { buttonPrimary, buttonSecondary } from "./styles";
 
-export const EnqueueModalContext = createContext<
-    ((modal: React.ReactNode) => void) | null
->(null);
+export const OpenModalContext = createContext<
+    ((modal: React.ReactNode) => void) | undefined
+>(undefined);
+
+export const ExitModalContext = createContext<(() => void) | undefined>(undefined);
 
 export default function IndexPage() {
     const dialogRef = useRef<HTMLDialogElement>(null);
 
     const [modalQueue, setModalQueue] = useState<React.ReactNode[]>([]);
 
-    const enqueueModal = (modal: React.ReactNode) => {
+    const openModal = (modal: React.ReactNode) => {
         setModalQueue(modalQueue.concat(modal));
     };
 
@@ -21,11 +23,11 @@ export default function IndexPage() {
     };
 
     const openAddItemModal = () => {
-        enqueueModal(<EditItem onSubmit={dequeueModal} />);
+        openModal(<EditItem onSubmit={dequeueModal} />);
     };
 
     const openAddItemRecordModal = () => {
-        enqueueModal(<EditItemRecord onSubmit={dequeueModal} />);
+        openModal(<EditItemRecord onSubmit={dequeueModal} />);
     };
 
     useEffect(() => {
@@ -37,26 +39,29 @@ export default function IndexPage() {
     }, [modalQueue]);
 
     return (
-        <EnqueueModalContext.Provider value={enqueueModal}>
-            <div id="container">
-                <header>
-                    <h1>Header</h1>
-                    <button onClick={openAddItemModal}>Create New Item Type</button>
-                    <button onClick={openAddItemRecordModal}>Add Item</button>
-                </header>
-                <main>
-                    <RecordList />
-                </main>
-                <footer>
-                    <h1>Footer</h1>
-                </footer>
-            </div>
-            <dialog ref={dialogRef} onClose={dequeueModal}>
-                <header style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <button onClick={() => dialogRef.current?.close()}>X</button>
-                </header>
-                {modalQueue.length > 0 ? modalQueue[0] : null}
-            </dialog>
-        </EnqueueModalContext.Provider>
+        <OpenModalContext.Provider value={openModal}>
+            <ExitModalContext.Provider value={dequeueModal}>
+                <div id="container" className="flex flex-col justify-end w-full h-full p-5 box-border">
+                    <header className="flex-shrink">
+                        <button className={buttonPrimary()} onClick={openAddItemModal}>Create Item</button>
+                        <button className={buttonSecondary()} onClick={openAddItemRecordModal}>Add Item</button>
+                    </header>
+                    <main className="flex-grow">
+                        <RecordList />
+                    </main>
+                </div>
+                <dialog className="m-auto w-full h-full flex justify-center align-center" ref={dialogRef} onClose={dequeueModal}>
+                    <div className="m-auto flex flex-col">
+                        <header className="flex justify-end">
+                            <button className={buttonSecondary()} onClick={dequeueModal}>X</button>
+                        </header>
+                        <main>
+                            {modalQueue.length > 0 ? modalQueue[0] : null}
+                        </main>
+                    </div>
+                </dialog>
+            </ExitModalContext.Provider>
+        </OpenModalContext.Provider>
     );
 }
+6

@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+
+    --color-primary: var(--color-teal-800);
+    --color-primary-hover: var(--color-teal-950);
+    --color-secondary: var(--color-teal-500);
+    --color-secondary-hover: var(--color-teal-600);
+
+    --background: var(--color-neutral-200);
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        --background: var(--color-neutral-900);
+    }
+}

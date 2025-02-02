@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   emptyItem,
   emptyItemRecord,
@@ -9,6 +9,8 @@ import {
 } from "../data/tables";
 import { useLiveQuery } from "dexie-react-hooks";
 import { dbItems, dbRecords } from "../data/db";
+import { buttonPrimary, buttonSecondary } from "./styles";
+import { ExitModalContext } from "./IndexPage";
 
 function getFieldUpdater<R>(data: R, setData: (data: R) => void) {
   return function <F extends keyof R, T extends "string" | "number">(
@@ -36,6 +38,7 @@ export function EditItem({
   const [data, setData] = useState(initialData ?? emptyItem());
 
   const update = getFieldUpdater(data, setData);
+  const exitModal = useContext(ExitModalContext);
 
   async function submit() {
     if (initialData == null) {
@@ -47,7 +50,7 @@ export function EditItem({
   }
 
   return (
-    <form method="dialog">
+    <form method="dialog" onSubmit={submit}>
       <label>Name:</label>
       <input
         name="name"
@@ -81,7 +84,8 @@ export function EditItem({
         onChange={update("monetaryValue", "number")}
       />
 
-      <button onClick={submit}>Save Item</button>
+      <button className={buttonPrimary()} type="submit">Save Item</button>
+      <button className={buttonSecondary()} onClick={exitModal}>Cancel</button>
     </form>
   );
 }
@@ -96,6 +100,7 @@ export function EditItemRecord({
   const [data, setData] = useState(initialData ?? emptyItemRecord());
 
   const update = getFieldUpdater(data, setData);
+  const exitModal = useContext(ExitModalContext);
 
   const items = useLiveQuery(() => dbItems.toArray());
 
@@ -155,7 +160,8 @@ export function EditItemRecord({
         onChange={update("monetaryValue", "number")}
       />
 
-      <button onClick={submit}>Save Item</button>
+      <button className={buttonPrimary()} onClick={submit}>Save Item</button>
+      <button className={buttonSecondary()} onClick={exitModal}>Cancel</button>
     </form>
   );
 }
