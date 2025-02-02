@@ -1,7 +1,9 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { dbItems } from "../../data/db";
-import { buttonPrimary, buttonSecondary } from "../styles";
+import { buttonPrimary, buttonSecondary, buttonSecondarySmall } from "../styles";
 import { loremIpsum } from "../../data/testdb";
+import { useEffect, useState } from "react";
+import type { Item } from "../../data/tables";
 
 export default function ItemsTab() {
     const items = useLiveQuery(() => dbItems.toArray());
@@ -13,37 +15,43 @@ export default function ItemsTab() {
     async function generateItem() {
         return dbItems.put({
             name: loremIpsum(1 + Math.floor(Math.random() * 4)),
-            category: "Item",
+            category: loremIpsum(1),
             desc: loremIpsum(3 + Math.floor(Math.random() * 26)),
             weight: 0,
             value: 0,
         });
     }
 
-    return (<div className="table w-full relative border-separate border-spacing-1 md:table-fixed bg-white">
-        <div className="table-header-group top-0 sticky z-1 font-bold bg-white">
-            <div className="table-cell text-center w-1">Category</div>
-            <div className="table-cell w-1">Name</div>
-            <div className="table-cell w-10">Description</div>
-            <div className="table-cell text-center w-0.5">Weight</div>
-            <div className="table-cell text-center w-0.5">Value</div>
-            <div className="table-cell text-center w-0.5">
-                <button className={buttonPrimary()} onClick={generateItem}>+</button>
-            </div>
+    return (<div className="p-2">
+        <div className="flex justify-between items-center my-3 bg-neutral-200 py-1 px-2 rounded">
+            <div className="text-2xl">Items</div>
+            <button className={buttonPrimary()} onClick={generateItem}>+</button>
         </div>
-        <div className="table-row-group overflow-scroll h-auto">
-            {items.map(item => (<div key={item.id} className="table-row border border-black">
-                <div className="table-cell text-center overflow-x-clip text-nowrap text-ellipsis">{item.category}</div>
-                <div className="table-cell overflow-x-clip text-nowrap text-ellipsis">{item.name}</div>
-                <div className="table-cell overflow-x-clip text-nowrap text-ellipsis">{item.desc}</div>
-                <div className="table-cell text-center">{item.weight.toFixed(2)}</div>
-                <div className="table-cell text-center">{item.value.toFixed(2)}</div>
-                <div className="table-cell text-center">
-                    <button className={buttonSecondary()} onClick={() => dbItems.delete(item.id)}>
-                        X
-                    </button>
-                </div>
-            </div>))}
+        <div className="flex flex-col gap-2">
+            {items.map(item => <ItemCard item={item} />)}
         </div>
     </div>);
+}
+
+export function ItemCard({item}: {item: Item}) {
+    const [open, setOpen] = useState(false);
+
+    return (<details className="bg-neutral-200 rounded" onToggle={(e) => setOpen(e.newState === "open")}>
+        <summary className={"flex justify-between cursor-pointer items-center rounded py-1 px-2 hover:text-(--color-secondary) border-black" + (open ? " border-b-2" : "")} title={open ? "Click to collapse" : "Click to expand"}>
+            <div>
+                <div className="font-bold">{item.name}</div>
+                <div>{item.category}</div>
+            </div>
+            <button className={buttonSecondarySmall()} onClick={() => dbItems.delete(item.id)}>+</button>                    
+        </summary>
+        <div className="p-1 px-2">
+            <header className="flex justify-start gap-2">
+                <span><b>Weight</b> {item.weight.toFixed(2)}</span>
+                <span><b>Value</b> {item.value.toFixed(2)}</span>
+            </header>
+            <main>
+                {item.desc}
+            </main>
+        </div>
+    </details>);
 }

@@ -48,7 +48,7 @@ export default function IndexPage() {
                             ))}
                         </nav>
                     </header>
-                    <main className="bg-white w-full">
+                    <main className="w-full">
                         {tabComponent}
                     </main>
                 </div>
