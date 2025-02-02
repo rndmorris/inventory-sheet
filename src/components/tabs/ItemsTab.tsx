@@ -1,8 +1,8 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { dbItems } from "../../data/db";
 import { buttonPrimary, buttonSecondary, buttonSecondarySmall } from "../styles";
-import { loremIpsum } from "../../data/testdb";
-import { useEffect, useState } from "react";
+import { loremIpsum } from "../../data/text";
+import { useState } from "react";
 import type { Item } from "../../data/tables";
 
 export default function ItemsTab() {
