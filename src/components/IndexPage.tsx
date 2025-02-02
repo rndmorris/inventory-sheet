@@ -1,7 +1,12 @@
-import { RecordList } from "./Records";
-import React, { createContext, useEffect, useRef, useState } from "react";
-import { EditItem, EditItemRecord } from "./modals";
-import { buttonPrimary, buttonSecondary } from "./styles";
+'use client';
+import { InventoryTab } from "./tabs/InventoryTab";
+import React, { createContext } from "react";
+import { buttonPrimary, buttonPrimaryPressed } from "./styles";
+import ItemsTab from "./tabs/ItemsTab";
+import SettingsTab from "./tabs/SettingsTab";
+import { useLocalStorage } from "./hooks";
+import type { JSX } from "astro/jsx-runtime";
+import { storageLocal } from "../data/storage";
 
 export const OpenModalContext = createContext<
     ((modal: React.ReactNode) => void) | undefined
@@ -9,59 +14,45 @@ export const OpenModalContext = createContext<
 
 export const ExitModalContext = createContext<(() => void) | undefined>(undefined);
 
+const tabs: { [key: string]: () => JSX.Element; } = {
+    items: () => <ItemsTab />,
+    inventory: () => <InventoryTab />,
+    settings: () => <SettingsTab />,
+};
+
 export default function IndexPage() {
-    const dialogRef = useRef<HTMLDialogElement>(null);
-
-    const [modalQueue, setModalQueue] = useState<React.ReactNode[]>([]);
-
-    const openModal = (modal: React.ReactNode) => {
-        setModalQueue(modalQueue.concat(modal));
+    const storageKey = "openTab";
+    const openTab = useLocalStorage(storageKey) ?? "items";
+    const tabComponent = openTab != null && openTab in tabs
+        ? tabs[openTab]()
+        : tabs.items();
+    
+    const changeTab = (event: React.ChangeEvent<HTMLInputElement>) => {
+        storageLocal.setItem(storageKey, event.target.value);
     };
-
-    const dequeueModal = () => {
-        setModalQueue(modalQueue.slice(1));
-    };
-
-    const openAddItemModal = () => {
-        openModal(<EditItem onSubmit={dequeueModal} />);
-    };
-
-    const openAddItemRecordModal = () => {
-        openModal(<EditItemRecord onSubmit={dequeueModal} />);
-    };
-
-    useEffect(() => {
-        if (modalQueue.length > 0 && dialogRef.current?.open !== true) {
-            dialogRef.current?.showModal();
-        } else if (modalQueue.length < 1 && dialogRef.current?.open === true) {
-            dialogRef.current?.close();
-        }
-    }, [modalQueue]);
-
+    
     return (
-        <OpenModalContext.Provider value={openModal}>
-            <ExitModalContext.Provider value={dequeueModal}>
+        <OpenModalContext.Provider value={undefined}>
+            <ExitModalContext.Provider  value={undefined}>
                 <div id="container" className="flex flex-col justify-end w-full h-full p-5 box-border">
                     <header className="flex-shrink">
-                        <button className={buttonPrimary()} onClick={openAddItemModal}>Create Item</button>
-                        <button className={buttonSecondary()} onClick={openAddItemRecordModal}>Add Item</button>
+                        <h1 className="text-3xl text-white pb-5">
+                            Character Inventory Manager
+                        </h1>
+                        <nav>
+                            {[["items", "Item List"], ["inventory", "Inventory"], ["settings", "Settings"]].map(([key, label]) => (
+                                <label className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()}>
+                                    {label}
+                                    <input type="radio" name="open-tab" className="hidden" onChange={changeTab} value={key} defaultChecked={openTab === key} />
+                                </label>
+                            ))}
+                        </nav>
                     </header>
-                    <main className="flex-grow">
-                        <RecordList />
+                    <main className="flex-grow bg-white">
+                        {tabComponent}
                     </main>
                 </div>
-                <dialog className="m-auto w-full h-full flex justify-center align-center" ref={dialogRef} onClose={dequeueModal}>
-                    <div className="m-auto flex flex-col">
-                        <header className="flex justify-end">
-                            <button className={buttonSecondary()} onClick={dequeueModal}>X</button>
-                        </header>
-                        <main>
-                            {modalQueue.length > 0 ? modalQueue[0] : null}
-                        </main>
-                    </div>
-                </dialog>
             </ExitModalContext.Provider>
         </OpenModalContext.Provider>
     );
 }
-6
