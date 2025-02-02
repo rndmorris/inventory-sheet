@@ -7,7 +7,7 @@ const db = new Dexie('inventory-list') as Dexie & {
 };
 
 db.version(1).stores({
-    items: '++id',
+    items: '++id, category, name',
     records: '++id',
 });
 
@@ -15,24 +15,27 @@ export interface Repository<T, TKey extends keyof T, TKeyProp = T[TKey]> {
     toArray(): PromiseExtended<T[]>;
     get(key: TKeyProp): PromiseExtended<T | undefined>;
     put(item: InsertType<T, TKey>): PromiseExtended<TKeyProp>;
+    delete(key: TKeyProp): PromiseExtended<void>;
 }
 
 export const dbItems: Repository<Item, `id`> = {
     toArray: () => db.items.toArray(),
     get: (key) => db.items.get(key),
-    put: ({ id, name, desc, weight, monetaryValue }: InsertType<Item, "id">) => db.items.put({
+    put: ({ id, name, category, desc, weight, value: monetaryValue }: InsertType<Item, "id">) => db.items.put({
         id,
         name,
+        category,
         desc,
         weight,
-        monetaryValue,
+        value: monetaryValue,
     }),
+    delete: (key) => db.items.delete(key),
 };
 
 export const dbRecords: Repository<ItemRecord, `id`> = {
     toArray: () => db.records.toArray(),
     get: (key) => db.records.get(key),
-    put: ({ id, itemId, quantity, fields, name, desc, weight, monetaryValue }: InsertType<ItemRecord, "id">) => db.records.put({
+    put: ({ id, itemId, quantity, fields, name, desc, weight, value: monetaryValue }: InsertType<ItemRecord, "id">) => db.records.put({
         id,
         itemId,
         quantity,
@@ -40,6 +43,7 @@ export const dbRecords: Repository<ItemRecord, `id`> = {
         name,
         desc,
         weight,
-        monetaryValue,
+        value: monetaryValue,
     }),
+    delete: (key) => db.records.delete(key),
 }

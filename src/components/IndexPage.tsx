@@ -34,21 +34,21 @@ export default function IndexPage() {
     return (
         <OpenModalContext.Provider value={undefined}>
             <ExitModalContext.Provider  value={undefined}>
-                <div id="container" className="flex flex-col justify-end w-full h-full p-5 box-border">
-                    <header className="flex-shrink">
+                <div id="container" className="w-full h-full p-5 box-border">
+                    <header>
                         <h1 className="text-3xl text-white pb-5">
                             Character Inventory Manager
                         </h1>
                         <nav>
                             {[["items", "Item List"], ["inventory", "Inventory"], ["settings", "Settings"]].map(([key, label]) => (
-                                <label className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()}>
+                                <label key={key} className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()}>
                                     {label}
                                     <input type="radio" name="open-tab" className="hidden" onChange={changeTab} value={key} defaultChecked={openTab === key} />
                                 </label>
                             ))}
                         </nav>
                     </header>
-                    <main className="flex-grow bg-white">
+                    <main className="bg-white w-full">
                         {tabComponent}
                     </main>
                 </div>

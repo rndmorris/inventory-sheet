@@ -80,7 +80,7 @@ export function EditItem({
       <input
         name="monetaryValue"
         type="number"
-        defaultValue={data.monetaryValue}
+        defaultValue={data.value}
         onChange={update("monetaryValue", "number")}
       />
 
@@ -156,7 +156,7 @@ export function EditItemRecord({
       <label>Override Cost:</label>
       <input
         type="number"
-        defaultValue={data.monetaryValue}
+        defaultValue={data.value}
         onChange={update("monetaryValue", "number")}
       />
 

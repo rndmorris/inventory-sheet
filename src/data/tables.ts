@@ -7,19 +7,19 @@ export type ItemRecordId = number & { readonly __tag: unique symbol; };
 export interface Item {
     id: ItemId;
     name: string;
+    category: string;
     desc: string;
     weight: number;
-    monetaryValue: number;
-
-    fields?: CustomFields;
+    value: number;
 }
 
 export function emptyItem(): InsertType<Item, "id"> {
     return {
         name: "",
+        category: "",
         desc: "",
         weight: 0,
-        monetaryValue: 0,
+        value: 0,
     };
 }
 
@@ -34,7 +34,7 @@ export interface ItemRecord {
     name?: string;
     desc?: string;
     weight?: number;
-    monetaryValue?: number;
+    value?: number;
 }
 
 export function emptyItemRecord(): InsertType<ItemRecord, "id"> {
