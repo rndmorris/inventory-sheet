@@ -3,7 +3,6 @@ import { navLink } from "./styles";
 import ItemsTab from "./tabs/ItemsTab";
 import { InventoryTab } from "./tabs/InventoryTab";
 import React from "react";
-import "../styles/global.css";
 
 export const tabs: { [key: string]: { label: string, }; } = {
     "items": { label: "Items", },
