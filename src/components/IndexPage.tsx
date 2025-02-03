@@ -26,7 +26,7 @@ export default function IndexPage() {
         <div id="container" className="w-full h-full p-5 box-border">
             <header>
                 <h1 className="text-3xl text-white pb-5">
-                    Character Inventory Manager
+                    Inventory Manager
                 </h1>
                 <nav>
                     {Object.keys(tabs).map((key) => (
