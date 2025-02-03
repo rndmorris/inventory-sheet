@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, deleteItem, putItem } from "../../data/db";
+import { db, MUT_ITEMS } from "../../data/db";
 import { buttonPrimary, buttonSecondarySmall } from "../styles";
 import { loremIpsum } from "../../data/text";
 import { CardList } from "../CardList";
@@ -12,7 +12,7 @@ export default function ItemsTab() {
     }
 
     async function generateItem() {
-        return putItem({
+        return MUT_ITEMS.put({
             name: loremIpsum(1 + Math.floor(Math.random() * 4)),
             category: loremIpsum(1),
             desc: loremIpsum(3 + Math.floor(Math.random() * 26)),
@@ -33,7 +33,7 @@ export default function ItemsTab() {
                         <div className="font-bold">{item.name}</div>
                         <div>{item.category}</div>
                     </div>
-                    <button className={buttonSecondarySmall()} onClick={() => deleteItem(item.id)}>+</button>                    
+                    <button className={buttonSecondarySmall()} onClick={() => MUT_ITEMS.delete(item.id, "update")}>+</button>                    
                 </>,
                 body: <>
                     <header className="flex justify-start gap-2">

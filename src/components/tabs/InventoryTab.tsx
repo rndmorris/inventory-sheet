@@ -1,4 +1,4 @@
-import { db, deleteInvItem, putInvItem } from "../../data/db";
+import { db, MUT_INV_ITEMS } from "../../data/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import type { InvItem } from "../../data/tables";
 import { CardList } from "../CardList";
@@ -32,7 +32,7 @@ export function InventoryTab() {
 
   async function generateInvItem() {
     const items = await db.items.toArray();
-    return putInvItem({
+    await MUT_INV_ITEMS.put({
       itemId: items[Math.floor(Math.random() * items.length)].id,
       quantity: 1 + Math.floor(Math.random() * 50),
     });
@@ -49,7 +49,7 @@ export function InventoryTab() {
         <span>
           <span className="font-bold">{invItem.name}</span> ({invItem.quantity})
         </span>
-        <button className={buttonSecondarySmall()} onClick={() => deleteInvItem(invItem.id)}>-</button>                    
+        <button className={buttonSecondarySmall()} onClick={() => MUT_INV_ITEMS.delete(invItem.id, "update")}>-</button>                    
       </>,
       body: <>
         <header className="flex justify-start gap-2">
