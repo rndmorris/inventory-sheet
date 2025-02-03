@@ -40,7 +40,7 @@ export default function IndexPage() {
                             Character Inventory Manager
                         </h1>
                         <nav>
-                            {[["items", "Item List"], ["inventory", "Inventory"], ["settings", "Settings"]].map(([key, label]) => (
+                            {[["items", "Items"], ["inventory", "Inventory"], ["settings", "Settings"]].map(([key, label]) => (
                                 <label key={key} className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()}>
                                     {label}
                                     <input type="radio" name="open-tab" className="hidden" onChange={changeTab} value={key} defaultChecked={openTab === key} />

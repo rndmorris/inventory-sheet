@@ -2,7 +2,7 @@ import type { InsertType } from "dexie";
 
 // newtypes: https://kubyshkin.name/posts/newtype-in-typescript/
 export type ItemId = number & { readonly __tag: unique symbol; };
-export type ItemRecordId = number & { readonly __tag: unique symbol; };
+export type InvItemId = number & { readonly __tag: unique symbol; };
 
 export interface Item {
     id: ItemId;
@@ -23,12 +23,10 @@ export function emptyItem(): InsertType<Item, "id"> {
     };
 }
 
-export interface ItemRecord {
-    // Required Fields
-    id: ItemRecordId;
+export interface InvItem {
+    id: InvItemId;
     itemId: ItemId | null;
     quantity: number;
-    fields?: CustomFields;
 
     // Definition Overrides
     name?: string;
@@ -37,17 +35,9 @@ export interface ItemRecord {
     value?: number;
 }
 
-export function emptyItemRecord(): InsertType<ItemRecord, "id"> {
+export function emptyInvItem(): InsertType<InvItem, "id"> {
     return {
         itemId: null,
         quantity: 1,
     };
-}
-
-export interface CustomFields {
-    [key: string]: unknown | undefined | null;
-}
-
-export interface ItemRecordHydrated extends ItemRecord {
-    item: Item | undefined;
 }

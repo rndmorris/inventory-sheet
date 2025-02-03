@@ -1,14 +1,14 @@
 import React, { useContext, useState } from "react";
 import {
   emptyItem,
-  emptyItemRecord,
+  emptyInvItem,
   type Item,
   type ItemId,
-  type ItemRecord,
-  type ItemRecordId,
+  type InvItem,
+  type InvItemId,
 } from "../data/tables";
 import { useLiveQuery } from "dexie-react-hooks";
-import { dbItems, dbRecords } from "../data/db";
+import { dbItems, dbInvItems } from "../data/db";
 import { buttonPrimary, buttonSecondary } from "./styles";
 import { ExitModalContext } from "./IndexPage";
 
@@ -94,10 +94,10 @@ export function EditItemRecord({
   onSubmit,
   initialData,
 }: {
-  onSubmit?: (item: ItemRecordId) => void;
-  initialData?: ItemRecord;
+  onSubmit?: (item: InvItemId) => void;
+  initialData?: InvItem;
 }) {
-  const [data, setData] = useState(initialData ?? emptyItemRecord());
+  const [data, setData] = useState(initialData ?? emptyInvItem());
 
   const update = getFieldUpdater(data, setData);
   const exitModal = useContext(ExitModalContext);
@@ -112,7 +112,7 @@ export function EditItemRecord({
     if (initialData == null) {
       delete (data as any).id;
     }
-    const putKey = await dbRecords.put(data);
+    const putKey = await dbInvItems.put(data);
     console.log("Saved new item record under id " + putKey.toFixed());
     if (onSubmit != null) {
       onSubmit(putKey);

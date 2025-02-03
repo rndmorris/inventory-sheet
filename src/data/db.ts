@@ -1,49 +1,39 @@
-import Dexie, { type EntityTable, type InsertType, type PromiseExtended } from 'dexie';
-import { type Item, type ItemRecord } from './tables';
+import Dexie, { type EntityTable, type InsertType, type PromiseExtended, type WhereClause } from 'dexie';
+import { type Item, type InvItem } from './tables';
 
-const db = new Dexie('inventory-list') as Dexie & {
-    items: EntityTable<Item, 'id'>;
-    records: EntityTable<ItemRecord, 'id'>;
+const _db = new Dexie('inventory-list') as Dexie & {
+    items: EntityTable<Item, "id">;
+    invItems: EntityTable<InvItem, 'id'>;
 };
 
-db.version(1).stores({
+_db.version(1).stores({
     items: '++id, category, name',
-    records: '++id',
+    invItems: '++id',
 });
 
-export interface Repository<T, TKey extends keyof T, TKeyProp = T[TKey]> {
-    toArray(): PromiseExtended<T[]>;
-    get(key: TKeyProp): PromiseExtended<T | undefined>;
-    put(item: InsertType<T, TKey>): PromiseExtended<TKeyProp>;
-    delete(key: TKeyProp): PromiseExtended<void>;
-}
+type RestrictedTable<T, TKey extends keyof T> = Omit<EntityTable<T, TKey>, "bulkAdd" | "bulkPut" | "bulkUpdate" | "add" | "put" | "update">;
 
-export const dbItems: Repository<Item, `id`> = {
-    toArray: () => db.items.toArray(),
-    get: (key) => db.items.get(key),
-    put: ({ id, name, category, desc, weight, value: monetaryValue }: InsertType<Item, "id">) => db.items.put({
-        id,
-        name,
-        category,
-        desc,
-        weight,
-        value: monetaryValue,
-    }),
-    delete: (key) => db.items.delete(key),
-};
+export const db: Dexie & {
+    items: RestrictedTable<Item, "id">;
+    invItems: RestrictedTable<InvItem, "id">;
+} = _db;
 
-export const dbRecords: Repository<ItemRecord, `id`> = {
-    toArray: () => db.records.toArray(),
-    get: (key) => db.records.get(key),
-    put: ({ id, itemId, quantity, fields, name, desc, weight, value: monetaryValue }: InsertType<ItemRecord, "id">) => db.records.put({
-        id,
-        itemId,
-        quantity,
-        fields,
-        name,
-        desc,
-        weight,
-        value: monetaryValue,
-    }),
-    delete: (key) => db.records.delete(key),
-}
+export type SafePut<T, TKey extends keyof T, TTable extends EntityTable<T, TKey> = EntityTable<T, TKey>> = TTable["put"];
+
+export const putItem: SafePut<Item, "id"> = ({ id, name, category, desc, weight, value: monetaryValue }: InsertType<Item, "id">) => _db.items.put({
+    id,
+    name,
+    category,
+    desc,
+    weight,
+    value: monetaryValue,
+});
+export const putInvItem: SafePut<InvItem, "id"> = ({ id, itemId, quantity, name, desc, weight, value: monetaryValue }: InsertType<InvItem, "id">) => _db.invItems.put({
+    id,
+    itemId,
+    quantity,
+    name,
+    desc,
+    weight,
+    value: monetaryValue,
+});
