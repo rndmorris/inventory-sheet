@@ -1,6 +1,5 @@
 'use client';
 import { InventoryTab } from "./tabs/InventoryTab";
-import React, { useState } from "react";
 import { buttonPrimary, buttonPrimaryPressed } from "./styles";
 import ItemsTab from "./tabs/ItemsTab";
 import type { JSX } from "astro/jsx-runtime";
@@ -11,16 +10,15 @@ const tabs: { [key: string]: {label: string, generator: () => JSX.Element}; } = 
     //settings: {label: "Settings", generator: () => <SettingsTab />},
 };
 
-export default function IndexPage() {
-    const [openTab, setOpenTab] = useState("items");
+export default function App({ tab }: { tab: string | undefined }) {
 
-    const tabComponent = openTab != null && openTab in tabs
-        ? tabs[openTab].generator()
+    if (tab == null || tab === '') {
+        tab = 'items';
+    }
+
+    const tabComponent = tab != null && tab in tabs
+        ? tabs[tab].generator()
         : tabs.items.generator();
-    
-    const changeTab = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setOpenTab(event.target.value);
-    };
     
     return (
         <div id="container" className="w-full h-full p-5 box-border">
@@ -28,14 +26,7 @@ export default function IndexPage() {
                 <h1 className="text-3xl text-white pb-5">
                     Inventory Manager
                 </h1>
-                <nav>
-                    {Object.keys(tabs).map((key) => (
-                        <label key={key} className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()} >
-                            {tabs[key].label}
-                            <input type="radio" name="open-tab" className="hidden" onChange={changeTab} value={key} defaultChecked={openTab === key} />
-                        </label>
-                    ))}
-                </nav>
+                <NavBar tab={tab} />
             </header>
             <main className="w-full">
                 {tabComponent}
@@ -43,3 +34,13 @@ export default function IndexPage() {
         </div>
     );
 }
+
+const NavBar = ({ tab }: { tab: string }) => (
+    <nav>
+        {Object.keys(tabs).map((key) => (
+            <a key={key} className={tab === key ? buttonPrimaryPressed() : buttonPrimary()} href={`${import.meta.env.BASE_URL}/${key}`} >
+                {tabs[key].label}
+            </a>
+        ))}
+    </nav>
+);

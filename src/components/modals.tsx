@@ -10,7 +10,7 @@ import {
 import { useLiveQuery } from "dexie-react-hooks";
 import { dbItems, dbInvItems } from "../data/db";
 import { buttonPrimary, buttonSecondary } from "./styles";
-import { ExitModalContext } from "./IndexPage";
+import { ExitModalContext } from "./app";
 
 function getFieldUpdater<R>(data: R, setData: (data: R) => void) {
   return function <F extends keyof R, T extends "string" | "number">(

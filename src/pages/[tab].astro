@@ -1,0 +1,18 @@
+---
+import Layout from "../layouts/Layout.astro";
+import App from "../components/app";
+import "../styles/global.css";
+
+export function getStaticPaths() {
+  return [
+    { params: { tab: 'items' } },
+    { params: { tab: 'inventory' } },
+  ];
+}
+
+const { tab } = Astro.params;
+---
+
+<Layout>
+  <App client:only="react" tab={tab} />
+</Layout>
