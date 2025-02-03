@@ -14,5 +14,5 @@ const { tab } = Astro.params;
 ---
 
 <Layout>
-  <App client:only="react" tab={tab} />
+  <App client:load tab={tab} />
 </Layout>

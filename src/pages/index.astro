@@ -1,9 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import App from "../components/app";
-import "../styles/global.css";
+import "../styles/global.css" assert { type: 'url' };
 ---
 
 <Layout>
-  <App client:only="react" tab={"items"} />
+  <App client:load tab={"items"} />
 </Layout>
