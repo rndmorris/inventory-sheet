@@ -1,6 +1,6 @@
-import { db, putInvItem } from "../../data/db";
+import { db, deleteInvItem, putInvItem } from "../../data/db";
 import { useLiveQuery } from "dexie-react-hooks";
-import type { InvItem, Item, ItemId } from "../../data/tables";
+import type { InvItem } from "../../data/tables";
 import { CardList } from "../CardList";
 import { buttonPrimary, buttonSecondarySmall } from "../styles";
 
@@ -49,7 +49,7 @@ export function InventoryTab() {
         <span>
           <span className="font-bold">{invItem.name}</span> ({invItem.quantity})
         </span>
-        <button className={buttonSecondarySmall()} onClick={() => db.invItems.delete(invItem.id)}>-</button>                    
+        <button className={buttonSecondarySmall()} onClick={() => deleteInvItem(invItem.id)}>-</button>                    
       </>,
       body: <>
         <header className="flex justify-start gap-2">

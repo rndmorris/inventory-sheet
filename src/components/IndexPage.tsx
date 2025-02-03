@@ -1,12 +1,9 @@
 'use client';
 import { InventoryTab } from "./tabs/InventoryTab";
-import React, { createContext } from "react";
+import React, { createContext, useState } from "react";
 import { buttonPrimary, buttonPrimaryPressed } from "./styles";
 import ItemsTab from "./tabs/ItemsTab";
-import SettingsTab from "./tabs/SettingsTab";
-import { useLocalStorage } from "./hooks";
 import type { JSX } from "astro/jsx-runtime";
-import { storageLocal } from "../data/storage";
 
 export const OpenModalContext = createContext<
     ((modal: React.ReactNode) => void) | undefined
@@ -14,21 +11,21 @@ export const OpenModalContext = createContext<
 
 export const ExitModalContext = createContext<(() => void) | undefined>(undefined);
 
-const tabs: { [key: string]: () => JSX.Element; } = {
-    items: () => <ItemsTab />,
-    inventory: () => <InventoryTab />,
-    settings: () => <SettingsTab />,
+const tabs: { [key: string]: {label: string, generator: () => JSX.Element}; } = {
+    items: {label: "Items", generator: () => <ItemsTab />},
+    inventory: {label: "Inventory", generator: () => <InventoryTab />},
+    //settings: {label: "Settings", generator: () => <SettingsTab />},
 };
 
 export default function IndexPage() {
-    const storageKey = "openTab";
-    const openTab = useLocalStorage(storageKey) ?? "items";
+    const [openTab, setOpenTab] = useState("items");
+
     const tabComponent = openTab != null && openTab in tabs
-        ? tabs[openTab]()
-        : tabs.items();
+        ? tabs[openTab].generator()
+        : tabs.items.generator();
     
     const changeTab = (event: React.ChangeEvent<HTMLInputElement>) => {
-        storageLocal.setItem(storageKey, event.target.value);
+        setOpenTab(event.target.value);
     };
     
     return (
@@ -40,9 +37,9 @@ export default function IndexPage() {
                             Character Inventory Manager
                         </h1>
                         <nav>
-                            {[["items", "Items"], ["inventory", "Inventory"], ["settings", "Settings"]].map(([key, label]) => (
-                                <label key={key} className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()}>
-                                    {label}
+                            {Object.keys(tabs).map((key) => (
+                                <label key={key} className={openTab === key ? buttonPrimaryPressed() : buttonPrimary()} >
+                                    {tabs[key].label}
                                     <input type="radio" name="open-tab" className="hidden" onChange={changeTab} value={key} defaultChecked={openTab === key} />
                                 </label>
                             ))}

@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, putItem } from "../../data/db";
+import { db, deleteItem, putItem } from "../../data/db";
 import { buttonPrimary, buttonSecondarySmall } from "../styles";
 import { loremIpsum } from "../../data/text";
 import { CardList } from "../CardList";
@@ -33,7 +33,7 @@ export default function ItemsTab() {
                         <div className="font-bold">{item.name}</div>
                         <div>{item.category}</div>
                     </div>
-                    <button className={buttonSecondarySmall()} onClick={() => db.items.delete(item.id)}>+</button>                    
+                    <button className={buttonSecondarySmall()} onClick={() => deleteItem(item.id)}>+</button>                    
                 </>,
                 body: <>
                     <header className="flex justify-start gap-2">

@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type InsertType, type PromiseExtended, type WhereClause } from 'dexie';
-import { type Item, type InvItem } from './tables';
+import { type Item, type InvItem, type ItemId, type InvItemId } from './tables';
 
 const _db = new Dexie('inventory-list') as Dexie & {
     items: EntityTable<Item, "id">;
@@ -8,32 +8,53 @@ const _db = new Dexie('inventory-list') as Dexie & {
 
 _db.version(1).stores({
     items: '++id, category, name',
-    invItems: '++id',
+    invItems: '++id, itemId',
 });
 
-type RestrictedTable<T, TKey extends keyof T> = Omit<EntityTable<T, TKey>, "bulkAdd" | "bulkPut" | "bulkUpdate" | "add" | "put" | "update">;
+type ReadOnlyTable<T, TKey extends keyof T> = Omit<EntityTable<T, TKey>, "add" | "bulkAdd" | "bulkDelete" | "bulkPut" | "bulkUpdate" | "delete" | "put" | "update">;
 
 export const db: Dexie & {
-    items: RestrictedTable<Item, "id">;
-    invItems: RestrictedTable<InvItem, "id">;
+    items: ReadOnlyTable<Item, "id">;
+    invItems: ReadOnlyTable<InvItem, "id">;
 } = _db;
 
-export type SafePut<T, TKey extends keyof T, TTable extends EntityTable<T, TKey> = EntityTable<T, TKey>> = TTable["put"];
+export const deleteItem = async (keys: ItemId | ItemId[], cascadeDelete: boolean = true) => {
+    keys = Array.isArray(keys) ? keys : [keys];
+    await _db.items.bulkDelete(keys);
+    if (cascadeDelete) {
+        const toDelete = await db.invItems.where("itemId").anyOf(keys).toArray();
+        await deleteInvItem(toDelete.map(invItem => invItem.id));
+    }
+};
 
-export const putItem: SafePut<Item, "id"> = ({ id, name, category, desc, weight, value: monetaryValue }: InsertType<Item, "id">) => _db.items.put({
-    id,
-    name,
-    category,
-    desc,
-    weight,
-    value: monetaryValue,
-});
-export const putInvItem: SafePut<InvItem, "id"> = ({ id, itemId, quantity, name, desc, weight, value: monetaryValue }: InsertType<InvItem, "id">) => _db.invItems.put({
-    id,
-    itemId,
-    quantity,
-    name,
-    desc,
-    weight,
-    value: monetaryValue,
-});
+export const deleteInvItem = async (keys: InvItemId | InvItemId[], cascadeDelete: boolean = true) => {
+    keys = Array.isArray(keys) ? keys : [keys];
+    await _db.invItems.bulkDelete(keys);
+};
+
+export const putItem = async (items: InsertType<Item, "id"> | InsertType<Item, "id">[]) => {
+    items = Array.isArray(items) ? items : [items];
+    const insert = items.map(({ id, name, category, desc, weight, value: monetaryValue }) => ({
+        id,
+        name,
+        category,
+        desc,
+        weight,
+        value: monetaryValue,
+    }));
+    await _db.items.bulkPut(insert);
+};
+
+export const putInvItem = async (invItems: InsertType<InvItem, "id"> | InsertType<InvItem, "id">[]) => {
+    invItems = Array.isArray(invItems) ? invItems : [invItems];
+    const insert = invItems.map(({ id, itemId, quantity, name, desc, weight, value }) => ({
+        id,
+        itemId,
+        quantity,
+        name,
+        desc,
+        weight,
+        value,
+    }));
+    await _db.invItems.bulkPut(insert);
+}
