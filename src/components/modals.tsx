@@ -57,6 +57,10 @@ export interface ConfirmProps extends ModalProps {
     resultCallback: (result: boolean) => void;
 }
 export const ModalConfirm = (props: ConfirmProps) => {
+    const onPressed = (result: boolean) => () => {
+        props.closeModal();
+        props.resultCallback(result);
+    }
     return (
         <ModalWithButtons
             closeModal={props.closeModal}
@@ -64,13 +68,13 @@ export const ModalConfirm = (props: ConfirmProps) => {
             defaultButton={{
                 label: "Confirm",
                 type: "submit",
-                onPressed: () => props.resultCallback(true),
+                onPressed: onPressed(true),
             }}
             buttons={[
                 {
                     label: "Cancel",
                     type: "button",
-                    onPressed: () => props.resultCallback(false),
+                    onPressed: onPressed(false),
                 },
             ]}
             onSubmit={() => props.resultCallback(true)}
@@ -80,17 +84,12 @@ export const ModalConfirm = (props: ConfirmProps) => {
     );
 };
 
-export type ModalButton =
-    | {
-          label: string;
-          onPressed: () => void;
-          type: "button" | "reset";
-      }
-    | {
-          label: string;
-          onPressed?: () => void;
-          type: "submit";
-      };
+export type ButtonType = "button" | "reset" | "submit";
+export interface ModalButton {
+    label: string;
+    onPressed?: () => void;
+    type: ButtonType;
+};
 export interface ButtonsProps extends ModalProps {
     title: string;
     children: React.ReactNode;
