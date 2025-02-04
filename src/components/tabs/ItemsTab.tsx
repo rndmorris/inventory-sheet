@@ -27,16 +27,7 @@ import { tryGet, type Out } from "../../data/arrays";
 export default function ItemsTab() {
     const items = useLiveQuery(() => db.items.toArray());
 
-    const mounted = useRef(false);
-    useEffect(() => {
-        mounted.current = true;
-
-        return () => {
-            mounted.current = false;
-        };
-    }, []);
-
-    const [modalData, setModalData] = useState<EditableItem | undefined>(
+    const [editData, setEditData] = useState<EditableItem | undefined>(
         undefined
     );
 
@@ -44,14 +35,12 @@ export default function ItemsTab() {
         return null;
     }
 
-    const hide = () => {
-        setModalData(undefined);
+    const hideEditModal = () => {
+        setEditData(undefined);
     };
 
-    const editItem = (item: Item) => {
-        return () => {
-            setModalData(item);
-        };
+    const openEditModal = (forItem: Item) => () => {
+        setEditData(forItem);
     };
 
     return (
@@ -62,7 +51,7 @@ export default function ItemsTab() {
                         <div className="text-2xl">Items</div>
                         <button
                             className={buttonPrimary()}
-                            onClick={() => setModalData(emptyItem())}
+                            onClick={() => setEditData(emptyItem())}
                         >
                             New Item
                         </button>
@@ -80,7 +69,7 @@ export default function ItemsTab() {
                                 <div>
                                     <button
                                         className={buttonTertiarySmall()}
-                                        onClick={editItem(item)}
+                                        onClick={openEditModal(item)}
                                     >
                                         Edit
                                     </button>
@@ -114,11 +103,11 @@ export default function ItemsTab() {
                     };
                 })}
             />
-            {modalData != null ? (
+            {editData != null ? (
                 <ModalEditItem
-                    onSubmit={hide}
-                    closeModal={hide}
-                    initialData={modalData}
+                    onSubmit={hideEditModal}
+                    closeModal={hideEditModal}
+                    initialData={editData}
                 />
             ) : null}
         </>
@@ -239,7 +228,7 @@ function ModalEditItem(props: EditItemProps) {
                 <ModalConfirm
                     closeModal={() => setConfirmDelete(false)}
                     title={`Delete ${data.name}?`}
-                    text="Items in your inventory will be unlinked."
+                    children="Items in your inventory will be unlinked."
                     resultCallback={async (result) => {
                         if (result) {
                             await deleteItem();

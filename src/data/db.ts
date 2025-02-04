@@ -188,4 +188,4 @@ const isInvItemIds = (arr: InvItemId[] | InvItem[]): arr is InvItemId[] => {
     }
     return typeof arr[0] === "number";
 };
-const notNull = <T>(t: T) => t != null;
+export const notNull = <T>(t: T) => t != null;
