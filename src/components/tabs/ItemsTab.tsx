@@ -1,5 +1,5 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, MUT_INV_ITEMS, MUT_ITEMS } from "../../data/db";
+import { db, MUT_ITEMS, MUT_LINE_ITEMS } from "../../data/db";
 import {
     buttonPrimary,
     buttonSecondarySmall,
@@ -76,7 +76,7 @@ export default function ItemsTab() {
                                     <button
                                         className={buttonSecondarySmall("ml-2")}
                                         onClick={() =>
-                                            MUT_INV_ITEMS.put({
+                                            MUT_LINE_ITEMS.put({
                                                 itemId: item.id,
                                                 quantity: 1,
                                             })
@@ -120,13 +120,6 @@ interface EditItemProps extends ModalProps {
 }
 function ModalEditItem(props: EditItemProps) {
     const [data, setData] = useState(props.initialData);
-
-    const dialogRef = useRef<HTMLDialogElement>(null);
-
-    useEffect(() => {
-        dialogRef.current?.showModal();
-        return () => dialogRef.current?.close();
-    });
 
     const [confirmDelete, setConfirmDelete] = useState(false);
 

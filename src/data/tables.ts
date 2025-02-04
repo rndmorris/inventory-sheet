@@ -39,7 +39,7 @@ export interface LineItem {
 }
 export type OrphanLineItem = InsertType<Required<LineItem>, "id">;
 
-export function emptyLineItem(): InsertType<LineItem, "id"> {
+export function emptyLineItem(): EditableLineItem {
     return {
         itemId: null,
         quantity: 1,
