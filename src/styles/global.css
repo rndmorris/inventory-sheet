@@ -10,12 +10,18 @@ html {
     --color-primary-hover: var(--color-teal-950);
     --color-secondary: var(--color-teal-500);
     --color-secondary-hover: var(--color-teal-600);
+    --color-tertiary: var(--color-slate-500);
+    --color-tertiary-hover: var(--color-slate-600);
 
     --background: var(--color-neutral-200);
+    --background-section: var(--color-neutral-50);
+    --text-color-section: var(--color-white);
 }
 
 @media (prefers-color-scheme: dark) {
     html {
         --background: var(--color-neutral-900);
+        --background-section: var(--color-neutral-200);
+        --text-color-section: var(--color-white);
     }
 }

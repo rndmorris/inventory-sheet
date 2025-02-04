@@ -4,9 +4,9 @@ import { buttonPrimary, buttonPrimaryPressed } from "./styles";
 import ItemsTab from "./tabs/ItemsTab";
 import type { JSX } from "astro/jsx-runtime";
 
-const tabs: { [key: string]: {label: string, generator: () => JSX.Element}; } = {
-    items: {label: "Items", generator: () => <ItemsTab />},
-    inventory: {label: "Inventory", generator: () => <InventoryTab />},
+const tabs: { [key: string]: { label: string, generator: () => JSX.Element }; } = {
+    items: { label: "Items", generator: () => <ItemsTab /> },
+    inventory: { label: "Inventory", generator: () => <InventoryTab /> },
     //settings: {label: "Settings", generator: () => <SettingsTab />},
 };
 
@@ -19,7 +19,7 @@ export default function App({ tab }: { tab: string | undefined }) {
     const tabComponent = tab != null && tab in tabs
         ? tabs[tab].generator()
         : tabs.items.generator();
-    
+
     return (
         <div id="container" className="w-full h-full p-5 box-border">
             <header>

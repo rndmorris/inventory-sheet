@@ -12,8 +12,9 @@ export interface Item {
     weight: number;
     value: number;
 }
+export type EditableItem = InsertType<Item, "id">;
 
-export function emptyItem(): InsertType<Item, "id"> {
+export function emptyItem(): EditableItem {
     return {
         name: "",
         category: "",
