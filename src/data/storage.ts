@@ -9,15 +9,17 @@ export const storageLocal: LocalStorage = Object.freeze({
     setItem: (key: string, value: string) => {
         const oldValue = storageLocal.getItem(key);
         window.localStorage.setItem(key, value);
-        window.dispatchEvent(new StorageEvent("storage", {
-            key,
-            newValue: value,
-            oldValue: oldValue,
-            storageArea: window.localStorage,
-            url: window.location.href,
-        }));
+        window.dispatchEvent(
+            new StorageEvent("storage", {
+                key,
+                newValue: value,
+                oldValue: oldValue,
+                storageArea: window.localStorage,
+                url: window.location.href,
+            })
+        );
     },
     removeItem: (key: string) => {
         storageLocal.setItem(key, null as any as string);
-    }
+    },
 });

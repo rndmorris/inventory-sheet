@@ -1,11 +1,10 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 * {
     box-sizing: border-box;
 }
 
 html {
-
     --color-primary: var(--color-teal-800);
     --color-primary-hover: var(--color-teal-950);
     --color-secondary: var(--color-teal-500);

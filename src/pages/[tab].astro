@@ -4,15 +4,12 @@ import App from "../components/app";
 import "../styles/global.css";
 
 export function getStaticPaths() {
-  return [
-    { params: { tab: 'items' } },
-    { params: { tab: 'inventory' } },
-  ];
+    return [{ params: { tab: "items" } }, { params: { tab: "inventory" } }];
 }
 
 const { tab } = Astro.params;
 ---
 
 <Layout>
-  <App client:load tab={tab} />
+    <App client:load tab={tab} />
 </Layout>

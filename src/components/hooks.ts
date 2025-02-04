@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from "react";
 
 export function useLocalStorage(key: string) {
-    
     const subscribe = (callback: () => void) => {
         const filter = (event: StorageEvent) => {
             if (event.key !== key) {
@@ -24,4 +23,4 @@ export function useLocalStorage(key: string) {
     // we provide a bogus getServerSnapshot method to prevent an error message
     const value = useSyncExternalStore(subscribe, getSnapshot, () => "");
     return value;
-};
+}

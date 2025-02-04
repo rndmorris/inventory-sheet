@@ -6,4 +6,4 @@ export const tryGet = <T>(arr: T[], index: number, out: Out<T>): boolean => {
         return true;
     }
     return false;
-}
+};

@@ -1,10 +1,27 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db, MUT_INV_ITEMS, MUT_ITEMS } from "../../data/db";
-import { buttonPrimary, buttonSecondarySmall, buttonTertiarySmall, inputText, label } from "../styles";
+import {
+    buttonPrimary,
+    buttonSecondarySmall,
+    buttonTertiarySmall,
+    inputText,
+    label,
+} from "../styles";
 import { CardList } from "../CardList";
 import { useEffect, useRef, useState } from "react";
-import { emptyItem, type EditableItem, type Item, type ItemId } from "../../data/tables";
-import { getFieldUpdater, ModalWithButtons, ModalConfirm, type ModalProps, type ModalButton } from "../modals";
+import {
+    emptyItem,
+    type EditableItem,
+    type Item,
+    type ItemId,
+} from "../../data/tables";
+import {
+    getFieldUpdater,
+    ModalWithButtons,
+    ModalConfirm,
+    type ModalProps,
+    type ModalButton,
+} from "../modals";
 import { tryGet, type Out } from "../../data/arrays";
 
 export default function ItemsTab() {
@@ -12,14 +29,16 @@ export default function ItemsTab() {
 
     const mounted = useRef(false);
     useEffect(() => {
-        mounted.current = true;;
+        mounted.current = true;
 
         return () => {
             mounted.current = false;
         };
-    }, [])
+    }, []);
 
-    const [modalData, setModalData] = useState<EditableItem | undefined>(undefined);
+    const [modalData, setModalData] = useState<EditableItem | undefined>(
+        undefined
+    );
 
     if (items == null) {
         return null;
@@ -27,44 +46,81 @@ export default function ItemsTab() {
 
     const hide = () => {
         setModalData(undefined);
-    }
+    };
 
     const editItem = (item: Item) => {
         return () => {
             setModalData(item);
         };
-    }
+    };
 
     return (
         <>
-            <CardList header={<>
-                <div className="text-2xl">Items</div>
-                <button className={buttonPrimary()} onClick={() => setModalData(emptyItem())}>New Item</button>
-            </>} cards={items.map(item => {
-                return {
-                    key: item.id,
-                    header: <>
-                        <div>
-                            <div className="font-bold">{item.name}</div>
-                            <div>{item.category}</div>
-                        </div>
-                        <div>
-                            <button className={buttonTertiarySmall()} onClick={editItem(item)}>Edit</button>
-                            <button className={buttonSecondarySmall("ml-2")} onClick={() => MUT_INV_ITEMS.put({ itemId: item.id, quantity: 1 })}>Add</button>
-                        </div>
-                    </>,
-                    body: <>
-                        <header className="flex justify-start gap-2">
-                            <span><b>Weight</b> {item.weight.toFixed(2)}</span>
-                            <span><b>Value</b> {item.value.toFixed(2)}</span>
-                        </header>
-                        <main>
-                            {item.desc}
-                        </main>
-                    </>,
-                };
-            })} />
-            {modalData != null ? <ModalEditItem onSubmit={hide} closeModal={hide} initialData={modalData} /> : null}
+            <CardList
+                header={
+                    <>
+                        <div className="text-2xl">Items</div>
+                        <button
+                            className={buttonPrimary()}
+                            onClick={() => setModalData(emptyItem())}
+                        >
+                            New Item
+                        </button>
+                    </>
+                }
+                cards={items.map((item) => {
+                    return {
+                        key: item.id,
+                        header: (
+                            <>
+                                <div>
+                                    <div className="font-bold">{item.name}</div>
+                                    <div>{item.category}</div>
+                                </div>
+                                <div>
+                                    <button
+                                        className={buttonTertiarySmall()}
+                                        onClick={editItem(item)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className={buttonSecondarySmall("ml-2")}
+                                        onClick={() =>
+                                            MUT_INV_ITEMS.put({
+                                                itemId: item.id,
+                                                quantity: 1,
+                                            })
+                                        }
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            </>
+                        ),
+                        body: (
+                            <>
+                                <header className="flex justify-start gap-2">
+                                    <span>
+                                        <b>Weight</b> {item.weight.toFixed(2)}
+                                    </span>
+                                    <span>
+                                        <b>Value</b> {item.value.toFixed(2)}
+                                    </span>
+                                </header>
+                                <main>{item.desc}</main>
+                            </>
+                        ),
+                    };
+                })}
+            />
+            {modalData != null ? (
+                <ModalEditItem
+                    onSubmit={hide}
+                    closeModal={hide}
+                    initialData={modalData}
+                />
+            ) : null}
         </>
     );
 }
@@ -93,8 +149,7 @@ export function ModalEditItem(props: EditItemProps) {
 
         if (tryGet(putKeys, 0, putKey)) {
             console.log("Saved item under id " + putKey.val.toFixed());
-        }
-        else {
+        } else {
             console.log("Could not save new item. Check the log.");
         }
         if (props.onSubmit != null) {
@@ -109,7 +164,11 @@ export function ModalEditItem(props: EditItemProps) {
         await MUT_ITEMS.delete(data.id, "update");
     }
 
-    const deleteButton: ModalButton = { label: "Delete" , type: "button", onPressed: () => setConfirmDelete(true), };
+    const deleteButton: ModalButton = {
+        label: "Delete",
+        type: "button",
+        onPressed: () => setConfirmDelete(true),
+    };
 
     return (
         <ModalWithButtons
@@ -117,8 +176,12 @@ export function ModalEditItem(props: EditItemProps) {
             title={data.id == null ? "New Item" : "Edit Item"}
             defaultButton={{ label: "Save Item", type: "submit" }}
             buttons={[
-                ... data.id != null ? [deleteButton] : [],
-                { label: "Cancel" , type: "button", onPressed: () => props.closeModal(), }
+                ...(data.id != null ? [deleteButton] : []),
+                {
+                    label: "Cancel",
+                    type: "button",
+                    onPressed: () => props.closeModal(),
+                },
             ]}
             onSubmit={updateItem}
         >
@@ -133,7 +196,13 @@ export function ModalEditItem(props: EditItemProps) {
                 />
 
                 <label className={label()}>Category:</label>
-                <input type="text" required={true} defaultValue={data.category} className={inputText()} onChange={update("category")} />
+                <input
+                    type="text"
+                    required={true}
+                    defaultValue={data.category}
+                    className={inputText()}
+                    onChange={update("category")}
+                />
 
                 <label className={label()}>Weight:</label>
                 <input
@@ -158,15 +227,16 @@ export function ModalEditItem(props: EditItemProps) {
                         <label className={label()}>Description:</label>
                     </div>
 
-                    <textarea required={true} defaultValue={data.desc} className={inputText("w-full")} onChange={update("desc")}>
-
-
-
-                    </textarea>
+                    <textarea
+                        required={true}
+                        defaultValue={data.desc}
+                        className={inputText("w-full")}
+                        onChange={update("desc")}
+                    ></textarea>
                 </div>
             </div>
-            {confirmDelete
-                ? <ModalConfirm
+            {confirmDelete ? (
+                <ModalConfirm
                     closeModal={() => setConfirmDelete(false)}
                     title={`Delete ${data.name}?`}
                     text="Items in your inventory will be unlinked."
@@ -175,8 +245,9 @@ export function ModalEditItem(props: EditItemProps) {
                             await deleteItem();
                             props.closeModal();
                         }
-                    }} />
-                : null}
+                    }}
+                />
+            ) : null}
         </ModalWithButtons>
     );
 }
