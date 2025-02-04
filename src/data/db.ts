@@ -1,5 +1,11 @@
 import Dexie, { type EntityTable, type InsertType } from "dexie";
-import { type Item, type InvItem, type ItemId } from "./tables";
+import {
+    type Item,
+    type InvItem,
+    type ItemId,
+    type OrphanInvItem,
+    type InvItemId,
+} from "./tables";
 
 const _db = new Dexie("inventory-list") as Dexie & {
     items: EntityTable<Item, "id">;
@@ -80,22 +86,7 @@ export const MUT_ITEMS: MutTable<Item, "id"> = {
                 cascadeAction
             );
         } else if (cascadeAction === "update") {
-            const toPut = children.map((invItem) => {
-                if (invItem.itemId == null) {
-                    return invItem;
-                }
-                const item = deletedItems.get(invItem.itemId);
-                invItem.itemId = null;
-                if (item == null) {
-                    return invItem;
-                }
-                invItem.name ??= item.name;
-                invItem.desc ??= item.desc;
-                invItem.weight ??= item.weight;
-                invItem.value ??= item.value;
-                return invItem;
-            });
-            await MUT_INV_ITEMS.put(toPut);
+            await MUT_INV_ITEMS.orphan(children);
         }
         await _db.items.bulkDelete(keys);
     },
@@ -115,7 +106,22 @@ export const MUT_ITEMS: MutTable<Item, "id"> = {
     },
 };
 
-export const MUT_INV_ITEMS: MutTable<InvItem, "id"> = {
+interface MutInvItems extends MutTable<InvItem, "id"> {
+    /**
+     * Unset the `itemId` of one or more `InvItem`s, and set the value of the `InvItem`s empty override fields to those of the parent `Item`s'.
+     * @param keys The keys of the `InvItem`s to orphan
+     * @returns The keys of the orphaned `InvItem`s
+     */
+    orphan(keys: InvItemId[]): Promise<(InvItemId | undefined)[]>;
+    /**
+     * Unset the `itemId` of one or more `InvItem`s, and set the value of the `InvItem`s empty override fields to those of the parent `Item`s'.
+     * @param invItems The `InvItem`s to orphan.
+     * @returns The keys of the orphaned `InvItem`s
+     */
+    orphan(invItems: InvItem[]): Promise<(InvItemId | undefined)[]>;
+}
+
+export const MUT_INV_ITEMS: MutInvItems = {
     delete: async (keys, cascadeDelete) => {
         keys = Array.isArray(keys) ? keys : [keys];
         await _db.invItems.bulkDelete(keys);
@@ -135,4 +141,51 @@ export const MUT_INV_ITEMS: MutTable<InvItem, "id"> = {
         );
         return await _db.invItems.bulkPut(insert, { allKeys: true });
     },
+    orphan: async (arg1: InvItemId[] | InvItem[]) => {
+        if (arg1.length < 1) {
+            return [];
+        }
+
+        const invItems = (
+            isInvItemIds(arg1) ? await db.invItems.bulkGet(arg1) : arg1
+        ).filter((i) => i != null);
+
+        const items = (await db.items.bulkGet(invItems.map(i => i.itemId).filter(notNull))).filter(notNull).reduce(
+            (map, i) => map.set(i.id, i), new Map<ItemId, Item>()
+        );
+
+        const orphan: (invItem: InvItem) => OrphanInvItem | null = (
+            invItem
+        ) => {
+            if (invItem.itemId == null) {
+                return null;
+            }
+            const item = items.get(invItem.itemId);
+            invItem.itemId = null;
+            if (item == null) {
+                return null;
+            }
+
+            return {
+                id: invItem.id,
+                itemId: null,
+                quantity: invItem.quantity,
+
+                name: invItem.name ?? item.name,
+                category: invItem.category ?? item.category,
+                desc: invItem.desc ?? item.desc,
+                weight: invItem.weight ?? item.weight,
+                value: invItem.value ?? item.value,
+            };
+        };
+        return await MUT_INV_ITEMS.put(invItems.map(orphan).filter(notNull));
+    },
 };
+
+const isInvItemIds = (arr: InvItemId[] | InvItem[]): arr is InvItemId[] => {
+    if (arr.length < 1) {
+        return false;
+    }
+    return typeof arr[0] === "number";
+};
+const notNull = <T>(t: T) => t != null;

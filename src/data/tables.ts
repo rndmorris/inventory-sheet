@@ -12,8 +12,8 @@ export interface Item {
     weight: number;
     value: number;
 }
-export type EditableItem = InsertType<Item, "id">;
 
+export type EditableItem = InsertType<Item, "id">;
 export function emptyItem(): EditableItem {
     return {
         name: "",
@@ -24,6 +24,7 @@ export function emptyItem(): EditableItem {
     };
 }
 
+export type EditableInvItem = InsertType<InvItem, "id">;
 export interface InvItem {
     id: InvItemId;
     itemId: ItemId | null;
@@ -31,10 +32,12 @@ export interface InvItem {
 
     // Definition Overrides
     name?: string;
+    category?: string;
     desc?: string;
     weight?: number;
     value?: number;
 }
+export type OrphanInvItem = InsertType<Required<InvItem>, "id">;
 
 export function emptyInvItem(): InsertType<InvItem, "id"> {
     return {
