@@ -2,9 +2,9 @@ import { db, MUT_INV_ITEMS, notNull } from "../../data/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
     type ItemId,
-    type EditableInvItem,
-    type InvItem,
-    type InvItemId,
+    type EditableLineItem,
+    type LineItem,
+    type LineItemId,
     type Item,
 } from "../../data/tables";
 import { CardList } from "../CardList";
@@ -24,42 +24,42 @@ import {
 } from "../modals";
 import { tryGet, type Out } from "../../data/arrays";
 
-type InvItemHydrated = Required<InvItem> & {
-    invItem: InvItem;
+type LineItemHydrated = Required<LineItem> & {
+    lineItem: LineItem;
 };
 
-async function query(): Promise<InvItemHydrated[]> {
-    const invItems = await db.invItems.toArray();
+async function query(): Promise<LineItemHydrated[]> {
+    const lineItems = await db.lineItems.toArray();
 
     return await Promise.all(
-        invItems.map(async (invItem) => {
+        lineItems.map(async (lineItem) => {
             const item =
-                invItem.itemId != null
-                    ? await db.items.get(invItem.itemId)
+                lineItem.itemId != null
+                    ? await db.items.get(lineItem.itemId)
                     : null;
             return {
-                invItem: invItem,
-                id: invItem.id,
-                itemId: invItem.itemId,
-                quantity: invItem.quantity,
-                name: invItem.name ?? item?.name ?? "",
-                category: invItem.category ?? item?.category ?? "",
-                desc: invItem.desc ?? item?.desc ?? "",
-                weight: invItem.weight ?? item?.weight ?? 0,
-                value: invItem.value ?? item?.value ?? 0,
+                lineItem: lineItem,
+                id: lineItem.id,
+                itemId: lineItem.itemId,
+                quantity: lineItem.quantity,
+                name: lineItem.name ?? item?.name ?? "",
+                category: lineItem.category ?? item?.category ?? "",
+                desc: lineItem.desc ?? item?.desc ?? "",
+                weight: lineItem.weight ?? item?.weight ?? 0,
+                value: lineItem.value ?? item?.value ?? 0,
             };
         })
     );
 }
 
 export function InventoryTab() {
-    const invItems = useLiveQuery(query);
+    const lineItems = useLiveQuery(query);
 
-    const [editData, setEditData] = useState<EditableInvItem | undefined>(
+    const [editData, setEditData] = useState<EditableLineItem | undefined>(
         undefined
     );
 
-    if (invItems == null) {
+    if (lineItems == null) {
         return null;
     }
 
@@ -67,7 +67,7 @@ export function InventoryTab() {
         setEditData(undefined);
     };
 
-    const openEditModal = (forItem: InvItem) => () => {
+    const openEditModal = (forItem: LineItem) => () => {
         setEditData(forItem);
     };
 
@@ -80,7 +80,7 @@ export function InventoryTab() {
                         <button className={buttonPrimary()}>Add Item</button>
                     </>
                 }
-                cards={invItems.map((lineItem) => ({
+                cards={lineItems.map((lineItem) => ({
                     key: lineItem.id,
                     header: (
                         <>
@@ -96,7 +96,7 @@ export function InventoryTab() {
                             <div>
                                 <button
                                     className={buttonSecondarySmall()}
-                                    onClick={() => setEditData(lineItem.invItem)}
+                                    onClick={() => setEditData(lineItem.lineItem)}
                                 >
                                     Edit
                                 </button>
@@ -119,7 +119,7 @@ export function InventoryTab() {
                 }))}
             />
             {editData != null ? (
-                <ModalEditInvItem
+                <ModalEditLineItem
                     initialData={editData}
                     closeModal={() => setEditData(undefined)}
                 />
@@ -128,11 +128,11 @@ export function InventoryTab() {
     );
 }
 
-interface EditInvItemProps extends ModalProps {
-    initialData: EditableInvItem;
-    onSubmit?: (item: InvItemId | undefined) => void;
+interface EditLineItemProps extends ModalProps {
+    initialData: EditableLineItem;
+    onSubmit?: (item: LineItemId | undefined) => void;
 }
-function ModalEditInvItem(props: EditInvItemProps) {
+function ModalEditLineItem(props: EditLineItemProps) {
     const [data, setData] = useState(Object.assign({}, props.initialData));
 
     const [baseItem, setBaseItem] = useState<Item | undefined>(undefined);
@@ -162,7 +162,7 @@ function ModalEditInvItem(props: EditInvItemProps) {
 
     async function updateItem() {
         const putKeys = await MUT_INV_ITEMS.put(data);
-        const putKey: Out<InvItemId> = { val: undefined! };
+        const putKey: Out<LineItemId> = { val: undefined! };
 
         if (tryGet(putKeys, 0, putKey)) {
             console.log("Saved item under id " + putKey.val.toFixed());

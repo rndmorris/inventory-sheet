@@ -2,7 +2,7 @@ import type { InsertType } from "dexie";
 
 // newtypes: https://kubyshkin.name/posts/newtype-in-typescript/
 export type ItemId = number & { readonly __tag: unique symbol };
-export type InvItemId = number & { readonly __tag: unique symbol };
+export type LineItemId = number & { readonly __tag: unique symbol };
 
 export interface Item {
     id: ItemId;
@@ -24,9 +24,9 @@ export function emptyItem(): EditableItem {
     };
 }
 
-export type EditableInvItem = InsertType<InvItem, "id">;
-export interface InvItem {
-    id: InvItemId;
+export type EditableLineItem = InsertType<LineItem, "id">;
+export interface LineItem {
+    id: LineItemId;
     itemId: ItemId | null;
     quantity: number;
 
@@ -37,9 +37,9 @@ export interface InvItem {
     weight?: number;
     value?: number;
 }
-export type OrphanInvItem = InsertType<Required<InvItem>, "id">;
+export type OrphanLineItem = InsertType<Required<LineItem>, "id">;
 
-export function emptyInvItem(): InsertType<InvItem, "id"> {
+export function emptyLineItem(): InsertType<LineItem, "id"> {
     return {
         itemId: null,
         quantity: 1,
