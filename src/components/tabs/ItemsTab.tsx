@@ -1,10 +1,10 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, MUT_ITEMS } from "../../data/db";
-import { buttonPrimary, buttonPrimarySmall, buttonSecondarySmall, buttonTertiarySmall, inputText, label } from "../styles";
+import { db, MUT_INV_ITEMS, MUT_ITEMS } from "../../data/db";
+import { buttonPrimary, buttonSecondarySmall, buttonTertiarySmall, inputText, label } from "../styles";
 import { CardList } from "../CardList";
 import { useEffect, useRef, useState } from "react";
 import { emptyItem, type EditableItem, type Item, type ItemId } from "../../data/tables";
-import { Dialog, getFieldUpdater, ModalButtons, ModalConfirm, type ModalProps } from "../modals";
+import { getFieldUpdater, ModalWithButtons, ModalConfirm, type ModalProps, type ModalButton } from "../modals";
 import { tryGet, type Out } from "../../data/arrays";
 
 export default function ItemsTab() {
@@ -50,7 +50,7 @@ export default function ItemsTab() {
                         </div>
                         <div>
                             <button className={buttonTertiarySmall()} onClick={editItem(item)}>Edit</button>
-                            <button className={buttonSecondarySmall("ml-2")} onClick={() => MUT_ITEMS.delete(item.id, "update")}>Add</button>
+                            <button className={buttonSecondarySmall("ml-2")} onClick={() => MUT_INV_ITEMS.put({ itemId: item.id, quantity: 1 })}>Add</button>
                         </div>
                     </>,
                     body: <>
@@ -64,7 +64,7 @@ export default function ItemsTab() {
                     </>,
                 };
             })} />
-            {modalData != null ? <ModalEditItem onSubmit={hide} close={hide} initialData={modalData} /> : null}
+            {modalData != null ? <ModalEditItem onSubmit={hide} closeModal={hide} initialData={modalData} /> : null}
         </>
     );
 }
@@ -109,9 +109,20 @@ export function ModalEditItem(props: EditItemProps) {
         await MUT_ITEMS.delete(data.id, "update");
     }
 
+    const deleteButton: ModalButton = { label: "Delete" , type: "button", onPressed: () => setConfirmDelete(true), };
+
     return (
-        <Dialog close={props.close} title={data.id == null ? "New Item" : "Edit Item"}>
-            <form method="dialog" onSubmit={updateItem} className="grid grid-cols-2">
+        <ModalWithButtons
+            closeModal={props.closeModal}
+            title={data.id == null ? "New Item" : "Edit Item"}
+            defaultButton={{ label: "Save Item", type: "submit" }}
+            buttons={[
+                ... data.id != null ? [deleteButton] : [],
+                { label: "Cancel" , type: "button", onPressed: () => props.closeModal(), }
+            ]}
+            onSubmit={updateItem}
+        >
+            <div className="grid grid-cols-2">
                 <label className={label()}>Name:</label>
                 <input
                     type="text"
@@ -153,27 +164,19 @@ export function ModalEditItem(props: EditItemProps) {
 
                     </textarea>
                 </div>
-
-                <div className="w-full flex justify-end col-span-2 pt-3 gap-1">
-                    {data.id != null
-                        ? <button className={buttonSecondarySmall()} type="button" onClick={() => setConfirmDelete(true)} >Delete</button>
-                        : null}
-                    <button className={buttonSecondarySmall()} type="button" onClick={props.close}>Cancel</button>
-                    <button className={buttonPrimarySmall()} type="submit">Save Item</button>
-                </div>
-            </form>
+            </div>
             {confirmDelete
                 ? <ModalConfirm
-                    close={() => setConfirmDelete(false)}
+                    closeModal={() => setConfirmDelete(false)}
                     title={`Delete ${data.name}?`}
                     text="Items in your inventory will be unlinked."
                     resultCallback={async (result) => {
                         if (result) {
                             await deleteItem();
-                            props.close();
+                            props.closeModal();
                         }
                     }} />
                 : null}
-        </Dialog>
+        </ModalWithButtons>
     );
 }

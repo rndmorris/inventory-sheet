@@ -3,7 +3,7 @@ import { buttonPrimarySmall, buttonSecondarySmall } from "./styles";
 import { createPortal } from "react-dom";
 
 export interface ModalProps {
-  close: () => void;
+  closeModal: () => void;
 }
 
 export function getFieldUpdater<R>(data: R, setData: (data: R) => void) {
@@ -30,44 +30,45 @@ interface ConfirmProps extends ModalProps {
 export const ModalConfirm = (props: ConfirmProps) => {
 
   return (
-    <ModalButtons
-      close={props.close}
+    <ModalWithButtons
+      closeModal={props.closeModal}
       title={props.title}
-      children={<p>{props.text}</p>}
-      defaultButton={{ label: "Confirm", result: true }}
-      buttons={[{ label: "Cancel", result: false }]}
-      onPressed={props.resultCallback}
-    />
+      defaultButton={{ label: "Confirm", type: "submit", onPressed: () => props.resultCallback(true), }}
+      buttons={[{ label: "Cancel", type: "button", onPressed: () => props.resultCallback(false) }]}
+      onSubmit={() => props.resultCallback(true)}
+    >
+      <p>{props.text}</p>
+    </ModalWithButtons>
   )
 };
 
-interface Button<T> {
+export type ModalButton = {
   label: string;
-  result: T;
-}
-interface ButtonsProps<T> extends ModalProps {
+  onPressed: () => void;
+  type: "button" | "reset";
+} | {
+  label: string;
+  onPressed?: () => void;
+  type: "submit";
+};
+interface ButtonsProps extends ModalProps {
   title: string;
   children: React.ReactNode;
-  defaultButton: Button<T>;
-  buttons?: Button<T>[];
-  onPressed: (result: T) => void;
+  defaultButton: ModalButton;
+  buttons?: ModalButton[];
+  onSubmit?: () => void;
 }
-export function ModalButtons<T>(props: ButtonsProps<T>) {
-
-  const submit = (result: T) => () => {
-    props.close();
-    props.onPressed(result);
-  };
+export function ModalWithButtons<T>(props: ButtonsProps) {
 
   return (
-    <Dialog close={props.close} title={props.title}>
-      <form method="dialog" onSubmit={submit(props.defaultButton.result)} className="grid grid-cols-1">
+    <Dialog closeModal={props.closeModal} title={props.title}>
+      <form method="dialog" onSubmit={props.onSubmit} className="grid grid-cols-1">
         <div>
           {props.children}
         </div>
         <div className="w-full flex justify-end col-span-2 pt-3 gap-1">
-          {props.buttons?.map((btn, index) => <button key={index} type="button" className={buttonSecondarySmall()} onClick={submit(btn.result)}>{btn.label}</button>)}
-          <button type="button" className={buttonPrimarySmall()} onClick={submit(props.defaultButton.result)}>{props.defaultButton.label}</button>
+          {props.buttons?.map((btn, index) => <button key={index} type={btn.type} className={buttonSecondarySmall()} onClick={btn.onPressed}>{btn.label}</button>)}
+          <button type={props.defaultButton.type} className={buttonPrimarySmall()} onClick={props.defaultButton.onPressed}>{props.defaultButton.label}</button>
         </div>
       </form>
     </Dialog>
@@ -84,7 +85,7 @@ export function Dialog(props: DialogProps) {
 
   useEffect(() => {
     dialogRef.current?.showModal();
-    return () => dialogRef.current?.close();
+    return () => {};
   })
 
   const [mounted, setMounted] = useState(false);
@@ -102,7 +103,7 @@ export function Dialog(props: DialogProps) {
       <div className="grid p-5 bg-white dark:bg-(--background-section) rounded">
         <div className="flex justify-between border-b-1 my-1">
           <span className="text-xl">{props.title}</span>
-          <button className={buttonSecondarySmall("aspect-square")} onClick={props.close}>X</button>
+          {/* <button className={buttonSecondarySmall("aspect-square")} onClick={props.closeModal}>X</button> */}
         </div>
         <div>
           <div>
