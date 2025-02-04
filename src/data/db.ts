@@ -189,3 +189,57 @@ const isLineItemIds = (arr: LineItemId[] | LineItem[]): arr is LineItemId[] => {
     return typeof arr[0] === "number";
 };
 export const notNull = <T>(t: T) => t != null;
+
+export interface LiveQueryResult<T> {
+    completed: true;
+    result: T;
+};
+export type AsyncLiveQueryResult<T> = Promise<LiveQueryResult<T>>;
+
+export const queries = {
+    getFlattenedLineItems: () => async (): AsyncLiveQueryResult<FlattenedLineItem[]> => {
+        const lineItems = await db.lineItems.toArray();
+
+        const result = await Promise.all(
+            lineItems.map(async (lineItem) => {
+                const item =
+                    lineItem.itemId != null
+                        ? await db.items.get(lineItem.itemId)
+                        : null;
+                return {
+                    lineItem: lineItem,
+                    id: lineItem.id,
+                    itemId: lineItem.itemId,
+                    quantity: lineItem.quantity,
+                    name: lineItem.name ?? item?.name ?? "",
+                    category: lineItem.category ?? item?.category ?? "",
+                    desc: lineItem.desc ?? item?.desc ?? "",
+                    weight: lineItem.weight ?? item?.weight ?? 0,
+                    value: lineItem.value ?? item?.value ?? 0,
+                };
+            })
+        );
+
+        return {
+            completed: true,
+            result,
+        };
+    },
+    getItem: (key: ItemId | null) => async (): AsyncLiveQueryResult<Item | null> => {
+        if (key == null) {
+            return {
+                completed: true,
+                result: null,
+            };
+        }
+        const result = await db.items.get(key);
+        return {
+            completed: true,
+            result: result ?? null, // collapse undefined into null
+        }
+    }
+}
+
+export type FlattenedLineItem = Required<LineItem> & {
+    lineItem: LineItem;
+};

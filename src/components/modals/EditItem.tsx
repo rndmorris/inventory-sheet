@@ -47,25 +47,28 @@ export function ModalEditItem(props: EditItemProps) {
         props.closeModal();
     };
 
-    const buttons: ModalButton[] = [
-        {
-            label: "Cancel",
-            type: "button",
-            onPressed: () => props.closeModal(),
-        },
-    ];
-    if (data.id != null) {
-        buttons.unshift({
-            label: "Delete",
-            type: "button",
-            onPressed: () => setConfirmDelete(true),
-        });
-    }
+    const buttons = (() => {
+        const buttons: ModalButton[] = [
+            {
+                label: "Cancel",
+                type: "button",
+                onPressed: () => props.closeModal(),
+            },
+        ];
+        if (data.id != null) {
+            buttons.unshift({
+                label: "Delete",
+                type: "button",
+                onPressed: () => setConfirmDelete(true),
+            });
+        }
+        return buttons;
+    })();
 
     return (
         <ModalWithButtons
             closeModal={props.closeModal}
-            title={data.id == null ? "New Item" : "Edit Item"}
+            title={data.id == null ? "New Item" : `Edit ${data.name ?? "Item"}`}
             defaultButton={{ label: "Save Item", type: "submit" }}
             buttons={buttons}
             onSubmit={saveItem}
@@ -98,7 +101,7 @@ export function ModalEditItem(props: EditItemProps) {
                     onChange={update("weight", "number")}
                 />
 
-                <label className={label()}>Cost:</label>
+                <label className={label()}>Value:</label>
                 <input
                     type="number"
                     required={true}

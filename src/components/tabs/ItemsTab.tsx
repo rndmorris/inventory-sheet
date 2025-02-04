@@ -1,28 +1,17 @@
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, MUT_ITEMS, MUT_LINE_ITEMS } from "../../data/db";
+import { db, MUT_LINE_ITEMS } from "../../data/db";
 import {
     buttonPrimary,
     buttonSecondarySmall,
     buttonTertiarySmall,
-    inputText,
-    label,
 } from "../styles";
 import { CardList } from "../CardList";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
     emptyItem,
     type EditableItem,
     type Item,
-    type ItemId,
 } from "../../data/tables";
-import {
-    getFieldUpdater,
-    ModalWithButtons,
-    ModalConfirm,
-    type ModalProps,
-    type ModalButton,
-} from "../modals";
-import { tryGet, type Out } from "../../data/arrays";
 import { ModalEditItem } from "../modals/EditItem";
 
 export default function ItemsTab() {

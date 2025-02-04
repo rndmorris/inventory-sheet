@@ -1,4 +1,4 @@
-import { db } from "../../data/db";
+import { db, queries, type FlattenedLineItem } from "../../data/db";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
     emptyLineItem,
@@ -10,20 +10,21 @@ import { buttonPrimary, buttonSecondarySmall } from "../styles";
 import { useState } from "react";
 import { ModalEditLineItem } from "../modals/EditLineItem";
 
-type LineItemFlattened = Required<LineItem> & {
-    lineItem: LineItem;
-};
-
 export function InventoryTab() {
-    const lineItems = useLiveQuery(getFlattenedLineItems);
+    const lineItemsQuery = useLiveQuery(queries.getFlattenedLineItems());
 
     const [editData, setEditData] = useState<EditableLineItem | undefined>(
         undefined
     );
 
-    if (lineItems == null) {
+    if (lineItemsQuery?.completed !== true) {
         return null;
     }
+    const lineItems = lineItemsQuery.result;
+
+    const hideEditModal = () => {
+        setEditData(undefined);
+    };
 
     return (
         <>
@@ -31,35 +32,10 @@ export function InventoryTab() {
                 header={<Header setEditData={setEditData} />}
                 cards={cards(lineItems, setEditData)}
             />
-            <EditModal
-                editData={editData}
-                closeModal={() => setEditData(undefined)}
-            />
+            {editData != null ? (
+        <ModalEditLineItem initialData={editData} closeModal={hideEditModal} onSubmit={hideEditModal} />
+    ) : null}
         </>
-    );
-}
-
-async function getFlattenedLineItems(): Promise<LineItemFlattened[]> {
-    const lineItems = await db.lineItems.toArray();
-
-    return await Promise.all(
-        lineItems.map(async (lineItem) => {
-            const item =
-                lineItem.itemId != null
-                    ? await db.items.get(lineItem.itemId)
-                    : null;
-            return {
-                lineItem: lineItem,
-                id: lineItem.id,
-                itemId: lineItem.itemId,
-                quantity: lineItem.quantity,
-                name: lineItem.name ?? item?.name ?? "",
-                category: lineItem.category ?? item?.category ?? "",
-                desc: lineItem.desc ?? item?.desc ?? "",
-                weight: lineItem.weight ?? item?.weight ?? 0,
-                value: lineItem.value ?? item?.value ?? 0,
-            };
-        })
     );
 }
 
@@ -80,7 +56,7 @@ const Header = ({
 );
 
 const cards = (
-    lineItems: LineItemFlattened[],
+    lineItems: FlattenedLineItem[],
     setEditData: (lineItem: LineItem) => void
 ) =>
     lineItems?.map((lineItem) => ({
@@ -93,7 +69,7 @@ const CardHeader = ({
     lineItem,
     setEditData,
 }: {
-    lineItem: LineItemFlattened;
+    lineItem: FlattenedLineItem;
     setEditData: (lineItem: LineItem) => void;
 }) => (
     <>
@@ -115,7 +91,7 @@ const CardHeader = ({
     </>
 );
 
-const CardBody = ({ lineItem }: { lineItem: LineItemFlattened }) => (
+const CardBody = ({ lineItem }: { lineItem: FlattenedLineItem }) => (
     <>
         <header className="flex justify-start gap-2">
             <span>
@@ -129,13 +105,3 @@ const CardBody = ({ lineItem }: { lineItem: LineItemFlattened }) => (
     </>
 );
 
-const EditModal = ({
-    editData,
-    closeModal,
-}: {
-    editData: EditableLineItem | undefined;
-    closeModal: () => void;
-}) =>
-    editData != null ? (
-        <ModalEditLineItem initialData={editData} closeModal={closeModal} />
-    ) : null;
