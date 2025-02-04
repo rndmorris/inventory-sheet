@@ -129,7 +129,7 @@ interface EditItemProps extends ModalProps {
     initialData: EditableItem;
     onSubmit?: (item: ItemId | undefined) => void;
 }
-export function ModalEditItem(props: EditItemProps) {
+function ModalEditItem(props: EditItemProps) {
     const [data, setData] = useState(props.initialData);
 
     const dialogRef = useRef<HTMLDialogElement>(null);
