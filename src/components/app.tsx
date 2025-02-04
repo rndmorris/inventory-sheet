@@ -1,6 +1,11 @@
 "use client";
 import { InventoryTab } from "./tabs/InventoryTab";
-import { buttonPrimary, buttonPrimaryPressed } from "./styles";
+import {
+    buttonPrimary,
+    buttonPrimaryPressed,
+    buttonTertiary,
+    buttonTertiarySmall,
+} from "./styles";
 import ItemsTab from "./tabs/ItemsTab";
 import type { JSX } from "astro/jsx-runtime";
 
@@ -34,16 +39,23 @@ export default function App({ tab }: { tab: string | undefined }) {
 
 const NavBar = ({ tab }: { tab: string }) => (
     <nav>
-        {Object.keys(tabs).map((key) => (
+            {Object.keys(tabs).map((key) => (
+                <a
+                    key={key}
+                    className={
+                        tab === key ? buttonPrimaryPressed() : buttonPrimary()
+                    }
+                    href={`${import.meta.env.BASE_URL}/${key}`}
+                >
+                    {tabs[key].label}
+                </a>
+            ))}
             <a
-                key={key}
-                className={
-                    tab === key ? buttonPrimaryPressed() : buttonPrimary()
-                }
-                href={`${import.meta.env.BASE_URL}/${key}`}
-            >
-                {tabs[key].label}
-            </a>
-        ))}
+            className={buttonTertiary("ml-10")}
+            href="https://github.com/rndmorris/inventory-sheet"
+            target="_blank"
+        >
+            View Source
+        </a>
     </nav>
 );

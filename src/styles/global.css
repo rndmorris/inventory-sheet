@@ -12,15 +12,19 @@ html {
     --color-tertiary: var(--color-slate-500);
     --color-tertiary-hover: var(--color-slate-600);
 
-    --background: var(--color-neutral-200);
-    --background-section: var(--color-neutral-50);
+    --background: var(--color-neutral-900);
+    --background-section: var(--color-neutral-200);
     --text-color-section: var(--color-white);
+    /* To-do: figure out light theme */
+    /* --background: var(--color-neutral-200);
+    --background-section: var(--color-neutral-50);
+    --text-color-section: var(--color-white); */
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     html {
         --background: var(--color-neutral-900);
         --background-section: var(--color-neutral-200);
         --text-color-section: var(--color-white);
     }
-}
+} */
